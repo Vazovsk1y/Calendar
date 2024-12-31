@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.DAL.PostgreSQL", "Calendar.DAL.PostgreSQL\Calendar.DAL.PostgreSQL.csproj", "{C67EA770-A323-48BB-AF82-FA7CE63D9CB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.WPF", "Calendar.WPF\Calendar.WPF.csproj", "{2B20D315-FF26-43DB-AE6A-FCA6A22B5FA6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C67EA770-A323-48BB-AF82-FA7CE63D9CB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C67EA770-A323-48BB-AF82-FA7CE63D9CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C67EA770-A323-48BB-AF82-FA7CE63D9CB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C67EA770-A323-48BB-AF82-FA7CE63D9CB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B20D315-FF26-43DB-AE6A-FCA6A22B5FA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B20D315-FF26-43DB-AE6A-FCA6A22B5FA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B20D315-FF26-43DB-AE6A-FCA6A22B5FA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B20D315-FF26-43DB-AE6A-FCA6A22B5FA6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

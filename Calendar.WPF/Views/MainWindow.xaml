@@ -1,0 +1,572 @@
+﻿<Window x:Class="Calendar.WPF.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vms="clr-namespace:Calendar.WPF.ViewModels"
+        d:DataContext="{d:DesignInstance vms:MainWindowViewModel, d:IsDesignTimeCreatable=True}"
+        mc:Ignorable="d"
+        Style="{StaticResource MaterialDesignWindow}"
+        FontFamily="{materialDesign:RobotoFont}"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:infr="clr-namespace:Calendar.WPF.Infrastructure"
+        xmlns:b="clr-namespace:Microsoft.Xaml.Behaviors;assembly=Microsoft.Xaml.Behaviors"
+        Title="Календарь"
+        WindowStartupLocation="CenterScreen"
+        MinHeight="450"
+        MinWidth="1000">
+    <Window.Resources>
+        <SolidColorBrush x:Key="MainPrimaryBrush">#5e35b1</SolidColorBrush>
+        <infr:DayViewModelDaysConverter x:Key="DayViewModelDaysConverter" />
+        <materialDesign:NullableToVisibilityConverter x:Key="NullableToVisibilityConverter" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <UniformGrid Columns="2"
+                             Margin="5">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Button Background="Transparent"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                Command="{Binding MovePreviousCommand}"
+                                BorderThickness="0">
+                            <materialDesign:PackIcon Kind="ArrowUp"
+                                                     Foreground="Black"
+                                                     Width="30"
+                                                     Height="30" />
+                        </Button>
+                        <Button Background="Transparent"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                Padding="0"
+                                BorderThickness="0"
+                                Command="{Binding MoveNextCommand}">
+                            <materialDesign:PackIcon Kind="ArrowDown"
+                                                     Width="30"
+                                                     Height="30"
+                                                     Foreground="Black" />
+                        </Button>
+
+                        <ContentControl Margin="10, 0, 0, 0"
+                                        Content="{Binding SelectedItem}">
+                            <ContentControl.Resources>
+                                <Style x:Key="ComboBoxStyle" TargetType="ComboBox"
+                                       BasedOn="{StaticResource MaterialDesignComboBox}">
+                                    <Setter Property="FontSize" Value="20" />
+                                    <Setter Property="FontWeight" Value="500" />
+                                    <Setter Property="VerticalAlignment" Value="Center" />
+                                    <Setter Property="MinWidth" Value="100" />
+                                    <Setter Property="Padding" Value="5" />
+                                    <Setter Property="Margin" Value="0, 0, 5, 0" />
+                                    <Setter Property="Foreground" Value="{StaticResource MainPrimaryBrush}" />
+                                </Style>
+
+                                <DataTemplate DataType="{x:Type vms:YearViewModel}">
+                                    <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                              ItemsSource="{Binding DataContext.YearIntegers, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              SelectedItem="{Binding DataContext.SelectedYear, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                </DataTemplate>
+                                <DataTemplate DataType="{x:Type vms:MonthViewModel}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                                  ItemsSource="{Binding DataContext.MonthStrings, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  SelectedItem="{Binding DataContext.SelectedMonthName, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                        <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                                  ItemsSource="{Binding DataContext.YearIntegers, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  SelectedItem="{Binding DataContext.SelectedYear, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                    </StackPanel>
+
+                                </DataTemplate>
+                                <DataTemplate DataType="{x:Type vms:DayViewModel}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                                  ItemsSource="{Binding DataContext.MonthStrings, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  SelectedItem="{Binding DataContext.SelectedMonthName, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                        <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                                  ItemsSource="{Binding DataContext.YearIntegers, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  SelectedItem="{Binding DataContext.SelectedYear, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ContentControl.Resources>
+
+                        </ContentControl>
+
+                        <materialDesign:PopupBox Margin="10, 0, 0, 0">
+                            <materialDesign:PopupBox.ToggleContent>
+                                <Border Background="{StaticResource MainPrimaryBrush}"
+                                        Padding="10"
+                                        CornerRadius="3">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Add"
+                                                                 Foreground="White"
+                                                                 Width="25"
+                                                                 Height="25" />
+                                        <TextBlock Text="Создать"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="18"
+                                                   Foreground="White"
+                                                   Margin="10,0, 0, 0" />
+                                    </StackPanel>
+                                </Border>
+                            </materialDesign:PopupBox.ToggleContent>
+
+                            <materialDesign:PopupBox.PopupContent>
+                                <StackPanel>
+                                    <Button Command="{Binding OpenReminderAddDialogCommand}"
+                                            Style="{StaticResource MaterialDesignFlatButton}"
+                                            HorizontalAlignment="Stretch">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Reminder"
+                                                                     Width="20"
+                                                                     Height="20"
+                                                                     Margin="0,0,8,0" />
+                                            <TextBlock Text="Напоминание"
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Command="{Binding OpenCalendarTaskAddDialogCommand}"
+                                            Style="{StaticResource MaterialDesignFlatButton}"
+                                            HorizontalAlignment="Stretch">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="TaskAdd"
+                                                                     Width="20"
+                                                                     Height="20"
+                                                                     Margin="0,0,8,0" />
+                                            <TextBlock Text="Задача"
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </materialDesign:PopupBox.PopupContent>
+                        </materialDesign:PopupBox>
+                    </StackPanel>
+                    <StackPanel HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal"
+                                Margin="0, 0, 5, 0">
+                        <ComboBox ItemsSource="{x:Static vms:MainWindowViewModel.DisplayTypes}"
+                                  SelectedItem="{Binding SelectedDisplayType}"
+                                  DisplayMemberPath="DisplayName"
+                                  FontSize="20"
+                                  FontWeight="500"
+                                  Padding="5"
+                                  MinWidth="100"
+                                  Margin="0, 0, 20, 0"
+                                  HorizontalContentAlignment="Center" />
+                        <Button Command="{Binding MoveToTodayCommand}"
+                                MinHeight="35">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="CalendarArrowLeft"
+                                                         VerticalAlignment="Center"
+                                                         Width="30"
+                                                         Height="30" />
+                                <TextBlock Text="Сегодня"
+                                           FontSize="20"
+                                           Margin="10, 0, 0, 0" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </UniformGrid>
+
+                <ContentControl Grid.Row="1"
+                                Content="{Binding SelectedItem}">
+                    <ContentControl.Template>
+                        <ControlTemplate TargetType="ContentControl">
+                            <materialDesign:Card Padding="16" Margin="10">
+                                <ContentPresenter Content="{TemplateBinding Content}" />
+                            </materialDesign:Card>
+                        </ControlTemplate>
+                    </ContentControl.Template>
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type vms:YearViewModel}">
+                            <!-- <materialDesign:TransitioningContent OpeningEffect="{materialDesign:TransitionEffect ExpandIn}" -->
+                            <!--                                      OpeningEffectsOffset="{materialDesign:IndexedItemOffsetMultiplier 0:0:6.0}"> -->
+                            <!--     </materialDesign:TransitioningContent> -->
+
+                            <ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding Months}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="4" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <GroupBox Margin="5">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                                        <b:InvokeCommandAction
+                                                            Command="{Binding DataContext.ItemSelectedCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                                <GroupBox.Header>
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontSize="16"
+                                                               Foreground="White"
+                                                               FontWeight="500" />
+                                                </GroupBox.Header>
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                    </Grid.RowDefinitions>
+                                                    <UniformGrid Columns="7">
+                                                        <UniformGrid.Resources>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                                                <Setter Property="FontWeight" Value="500" />
+                                                            </Style>
+                                                        </UniformGrid.Resources>
+                                                        <TextBlock Text="Пн" />
+                                                        <TextBlock Text="Вт" />
+                                                        <TextBlock Text="Ср" />
+                                                        <TextBlock Text="Чт" />
+                                                        <TextBlock Text="Пт" />
+                                                        <TextBlock Text="Сб" Foreground="Red" />
+                                                        <TextBlock Text="Вс" Foreground="Red" />
+                                                    </UniformGrid>
+                                                    <ItemsControl Grid.Row="1"
+                                                                  ItemsSource="{Binding Days}"
+                                                                  Margin="0, 5, 0, 0">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <UniformGrid Columns="7" />
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border>
+                                                                    <Border.Style>
+                                                                        <Style TargetType="Border">
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger
+                                                                                    Binding="{Binding IsToday}"
+                                                                                    Value="True">
+                                                                                    <Setter Property="Background"
+                                                                                        Value="{StaticResource MainPrimaryBrush}" />
+                                                                                    <Setter
+                                                                                        Property="TextElement.Foreground"
+                                                                                        Value="White" />
+                                                                                    <Setter
+                                                                                        Property="TextElement.FontWeight"
+                                                                                        Value="500" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Border.Style>
+                                                                    <TextBlock Text="{Binding Number}"
+                                                                               VerticalAlignment="Center"
+                                                                               HorizontalAlignment="Center" />
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </Grid>
+
+                                            </GroupBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                        </DataTemplate>
+
+                        <DataTemplate DataType="{x:Type vms:MonthViewModel}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <Border BorderThickness="0, 0, 0, 1.3"
+                                        BorderBrush="{StaticResource MaterialDesignDarkSeparatorBackground}"
+                                        Padding="7">
+                                    <UniformGrid Columns="7">
+                                        <UniformGrid.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontSize" Value="16" />
+                                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                                <Setter Property="FontWeight" Value="500" />
+                                            </Style>
+                                        </UniformGrid.Resources>
+                                        <TextBlock Text="Понедельник" />
+                                        <TextBlock Text="Вторник" />
+                                        <TextBlock Text="Среда" />
+                                        <TextBlock Text="Четверг" />
+                                        <TextBlock Text="Пятница" />
+                                        <TextBlock Text="Суббота" Foreground="Red" />
+                                        <TextBlock Text="Воскресенье" Foreground="Red" />
+                                    </UniformGrid>
+                                </Border>
+
+                                <ScrollViewer Grid.Row="1">
+                                    <UniformGrid>
+                                        <ItemsControl ItemsSource="{Binding Days}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Columns="7" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Padding="7, 10, 0, 0">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsToday}"
+                                                                        Value="True">
+                                                                        <Setter Property="BorderBrush"
+                                                                            Value="{StaticResource MainPrimaryBrush}" />
+                                                                        <Setter Property="BorderThickness"
+                                                                            Value="0, 0, 0, 2" />
+                                                                        <Setter Property="TextElement.Foreground"
+                                                                            Value="{StaticResource MainPrimaryBrush}" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <ContentControl>
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="MouseDoubleClick">
+                                                                    <b:InvokeCommandAction
+                                                                        Command="{Binding DataContext.ItemSelectedCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        CommandParameter="{Binding}" />
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                            <UniformGrid Rows="2">
+                                                                <TextBlock Text="{Binding Number}"
+                                                                           HorizontalAlignment="Left"
+                                                                           FontSize="18" />
+                                                                <TextBlock Text="{Binding Holiday}"
+                                                                           TextWrapping="Wrap"
+                                                                           FontSize="14"
+                                                                           Foreground="Red" />
+                                                            </UniformGrid>
+                                                        </ContentControl>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </UniformGrid>
+                                </ScrollViewer>
+
+                            </Grid>
+                        </DataTemplate>
+
+                        <DataTemplate DataType="{x:Type vms:DayViewModel}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel HorizontalAlignment="Left"
+                                            Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontWeight="500"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource MainPrimaryBrush}"
+                                               FontSize="18" />
+                                    <ComboBox
+                                        ItemsSource="{Binding Path=., Converter={StaticResource DayViewModelDaysConverter}}"
+                                        SelectedItem="{Binding DataContext.SelectedDayNumber, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        FontSize="18"
+                                        Foreground="{StaticResource MainPrimaryBrush}"
+                                        Margin="8, 0, 0, 0"
+                                        MinWidth="60"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Padding="5" />
+                                </StackPanel>
+
+                                <TabControl Margin="0, 10, 0, 0"
+                                            Grid.Row="1">
+                                    <TabItem Header="Задачи">
+                                        <ScrollViewer Margin="0, 15, 0, 0">
+                                            <ItemsControl ItemsSource="{Binding Tasks}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <GroupBox Header="{Binding RemindAtDisplay}"
+                                                                  HorizontalContentAlignment="Stretch"
+                                                                  HorizontalAlignment="Stretch">
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Title}"
+                                                                           FontSize="18"
+                                                                           FontWeight="500" />
+                                                                <TextBlock Text="{Binding Description}"
+                                                                           TextWrapping="Wrap"
+                                                                           Margin="0, 10, 0, 0"
+                                                                           FontSize="14" />
+                                                                <Button
+                                                                    Style="{StaticResource MaterialDesignIconButton}"
+                                                                    Command="{Binding DataContext.DeleteCalendarTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    HorizontalAlignment="Left">
+                                                                    <materialDesign:PackIcon Kind="TrashCanOutline" />
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </GroupBox>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </TabItem>
+                                    <TabItem Header="Напоминания">
+                                        <ScrollViewer Margin="0, 15, 0, 0">
+                                            <ItemsControl ItemsSource="{Binding Reminders}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <GroupBox Header="{Binding RemindAtDisplay}"
+                                                                  HorizontalContentAlignment="Stretch"
+                                                                  HorizontalAlignment="Stretch">
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Text}"
+                                                                           FontSize="18"
+                                                                           FontWeight="500" />
+                                                                <Button
+                                                                    Style="{StaticResource MaterialDesignIconButton}"
+                                                                    HorizontalAlignment="Left"
+                                                                    Command="{Binding DataContext.DeleteReminderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}">
+                                                                    <materialDesign:PackIcon Kind="TrashCanOutline" />
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </GroupBox>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </TabItem>
+                                </TabControl>
+                            </Grid>
+
+                        </DataTemplate>
+                    </ContentControl.Resources>
+
+                </ContentControl>
+            </Grid>
+
+        </Grid>
+
+        <Grid Background="#80000000"
+              Visibility="{Binding DataContext.ReminderAddViewModel, Converter={StaticResource NullableToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}"
+              DataContext="{Binding ReminderAddViewModel}">
+            <materialDesign:Card MaxHeight="210"
+                                 MaxWidth="550">
+                <StackPanel Margin="10">
+                    <UniformGrid Columns="2">
+                        <TextBlock Text="Добавить напоминание"
+                                   VerticalAlignment="Center"
+                                   FontWeight="500"
+                                   FontSize="18" />
+                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                                HorizontalAlignment="Right"
+                                Command="{Binding CloseCommand}">
+                            <materialDesign:PackIcon Kind="Close" />
+                        </Button>
+                    </UniformGrid>
+
+                    <StackPanel Margin="0, 10, 0, 0">
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+                                <Setter Property="FontSize" Value="16" />
+                                <Setter Property="Padding" Value="5" />
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBox materialDesign:HintAssist.Hint="Введите текст..."
+                                 Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0, 15, 0, 0">
+                            <DatePicker SelectedDate="{Binding Date}"
+                                        MinWidth="120" />
+                            <materialDesign:TimePicker SelectedTime="{Binding Time}"
+                                                       Is24Hours="True"
+                                                       SelectedTimeFormat="Long"
+                                                       Margin="10, 0, 0, 0"
+                                                       MinWidth="120" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button HorizontalAlignment="Right"
+                            MinWidth="120"
+                            Content="Подтвердить"
+                            Margin="0, 20, 0, 0"
+                            Command="{Binding ConfirmCommand}" />
+                </StackPanel>
+            </materialDesign:Card>
+        </Grid>
+
+        <Grid Background="#80000000"
+              Visibility="{Binding DataContext.CalendarTaskAddViewModel, Converter={StaticResource NullableToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}"
+              DataContext="{Binding CalendarTaskAddViewModel}">
+            <materialDesign:Card MaxHeight="350"
+                                 MaxWidth="550">
+                <StackPanel Margin="10">
+                    <UniformGrid Columns="2">
+                        <TextBlock Text="Новая задача"
+                                   VerticalAlignment="Center"
+                                   FontWeight="500"
+                                   FontSize="18" />
+                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                                HorizontalAlignment="Right"
+                                Command="{Binding CloseCommand}">
+                            <materialDesign:PackIcon Kind="Close" />
+                        </Button>
+                    </UniformGrid>
+
+                    <StackPanel Margin="0, 10, 0, 0">
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+                                <Setter Property="FontSize" Value="16" />
+                                <Setter Property="Padding" Value="5" />
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBox materialDesign:HintAssist.Hint="Заголовок..."
+                                 Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox materialDesign:HintAssist.Hint="Описание..."
+                                 Margin="0, 15, 0, 0"
+                                 MinHeight="130"
+                                 TextWrapping="Wrap"
+                                 VerticalContentAlignment="Top"
+                                 Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0, 15, 0, 0">
+                            <DatePicker SelectedDate="{Binding Date}"
+                                        MinWidth="120" />
+                            <materialDesign:TimePicker SelectedTime="{Binding Time}"
+                                                       Is24Hours="True"
+                                                       SelectedTimeFormat="Long"
+                                                       Margin="10, 0, 0, 0"
+                                                       MinWidth="120" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button HorizontalAlignment="Right"
+                            MinWidth="120"
+                            Content="Подтвердить"
+                            Margin="0, 20, 0, 0"
+                            Command="{Binding ConfirmCommand}" />
+                </StackPanel>
+            </materialDesign:Card>
+        </Grid>
+
+        <materialDesign:Snackbar MinHeight="40"
+                                 MessageQueue="{Binding SnackbarMessageQueue}"
+                                 HorizontalAlignment="Left"
+                                 Margin="20, 0, 0, 20"
+                                 FontSize="16" />
+
+        <materialDesign:DialogHost Identifier="{x:Static vms:MainWindowViewModel.DeleteMessageBoxId}"
+                                   CloseOnClickAway="True" />
+    </Grid>
+</Window>
